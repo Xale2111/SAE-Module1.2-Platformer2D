@@ -2,8 +2,9 @@
 %TAG !u! tag:unity3d.com,2011:
 --- !u!78 &1
 TagManager:
-  serializedVersion: 2
-  tags: []
+  serializedVersion: 3
+  tags:
+  - Hazard
   layers:
   - Default
   - TransparentFX
@@ -11,7 +12,7 @@ TagManager:
   - 
   - Water
   - UI
-  - 
+  - Ground
   - 
   - 
   - 
@@ -41,3 +42,20 @@ TagManager:
   - name: Default
     uniqueID: 0
     locked: 0
+  - name: Background
+    uniqueID: 401453461
+    locked: 0
+  - name: Ground
+    uniqueID: 1034163849
+    locked: 0
+  - name: Items
+    uniqueID: 3120482581
+    locked: 0
+  - name: Character
+    uniqueID: 27541677
+    locked: 0
+  - name: ForeGround
+    uniqueID: 1792217325
+    locked: 0
+  m_RenderingLayers:
+  - Default
