@@ -5,7 +5,7 @@ using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.InputSystem;
-
+using Random = UnityEngine.Random;
 
 [RequireComponent(typeof(Rigidbody2D))]
 [RequireComponent(typeof(Animator))]
@@ -50,6 +50,10 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private Transform camTarget;
     [SerializeField] private float camOffsetX = 4f;
     [SerializeField] private float camOffsetSpeed = 7.5f;
+
+    [Header("Camera shake")] [Space(5)]
+    [SerializeField] private CinemachineBasicMultiChannelPerlin mainCamera;
+    [SerializeField] private float shakeDuration = 0.1f;
     
     [Header("Sprite container")]
     [Space(10)]
@@ -90,6 +94,9 @@ public class PlayerController : MonoBehaviour
     //Cam Follow
     private float camResetDelay = 3f;
     private float camResetTimer = 0f;
+    
+    //camera shake
+    private bool isCameraShaking = false;
 
     //Movements related (Others)
     private float moveSpeed; //Movement speed (local var change depending on runIsPressed)
@@ -146,6 +153,11 @@ public class PlayerController : MonoBehaviour
             FlipSprite();
             FlipCamera();
         }
+
+        if (isCameraShaking)
+        {
+            ShakeCamera();
+        }
         
         ManageAnimator();
         
@@ -200,26 +212,36 @@ public class PlayerController : MonoBehaviour
 
     private void FlipCamera()
     {
-        if (_rb.linearVelocity.x != 0)
+        if (!isCameraShaking)
         {
-            if (isFacingRight)
+            if (_rb.linearVelocity.x != 0)
             {
-                camTarget.localPosition = new Vector2(Mathf.Lerp(camTarget.localPosition.x, camOffsetX, Time.deltaTime * camOffsetSpeed), camTarget.localPosition.y);
+                if (isFacingRight)
+                {
+                    camTarget.localPosition =
+                        new Vector2(Mathf.Lerp(camTarget.localPosition.x, camOffsetX, Time.deltaTime * camOffsetSpeed),
+                            camTarget.localPosition.y);
+                }
+                else
+                {
+                    camTarget.localPosition =
+                        new Vector2(Mathf.Lerp(camTarget.localPosition.x, -camOffsetX, Time.deltaTime * camOffsetSpeed),
+                            camTarget.localPosition.y);
+                }
+
+                camResetTimer = camResetDelay;
             }
             else
             {
-                camTarget.localPosition = new Vector2(Mathf.Lerp(camTarget.localPosition.x, -camOffsetX, Time.deltaTime * camOffsetSpeed), camTarget.localPosition.y);
+                camResetTimer -= Time.deltaTime;
             }
-            camResetTimer = camResetDelay;            
-        }
-        else
-        {
-            camResetTimer -= Time.deltaTime;
-        }
 
-        if (camResetTimer < 0)
-        {
-            camTarget.localPosition = new Vector2(Mathf.Lerp(camTarget.localPosition.x, 0, Time.deltaTime * camOffsetSpeed), camTarget.localPosition.y);   
+            if (camResetTimer < 0)
+            {
+                camTarget.localPosition =
+                    new Vector2(Mathf.Lerp(camTarget.localPosition.x, 0, Time.deltaTime * camOffsetSpeed),
+                        camTarget.localPosition.y);
+            }
         }
     }
     
@@ -344,7 +366,7 @@ public class PlayerController : MonoBehaviour
     private void ScalePlayerBasedOnScore()
     {
         Vector2 scale = spriteContainer.transform.localScale;
-        scale.x = defaultScale + (0.05f * score);
+        scale.x = defaultScale + (weightScaleMultiplier * score);
         if (scale.x >= 0.5f)
         {
             spriteContainer.transform.localScale = scale;   
@@ -389,8 +411,41 @@ public class PlayerController : MonoBehaviour
         walkSoundTimer -= Time.deltaTime;
     }
 
+    public void SetCameraShake()
+    {
+        if(!isCameraShaking)
+        {
+            isCameraShaking = true;
+            Debug.Log("SHAKE CAMERA");
+            StartCoroutine(StopCameraShake_CO());
+        }
+    }
+
+    private IEnumerator StopCameraShake_CO()
+    {
+        yield return new WaitForSeconds(shakeDuration);
+        isCameraShaking = false;
+        
+        mainCamera.FrequencyGain = 0;
+        mainCamera.AmplitudeGain = 0;
+    }
     
-    
+    private void ShakeCamera()
+    {
+        //calculate shake intensity based on score
+        float shakeIntensity = 0f;
+        if (score != 0)
+        {
+            //score^3/(10^3*score)
+            shakeIntensity = (Mathf.Pow(score, 3)/(Mathf.Pow(10,3)*score));   
+        }
+        
+        shakeIntensity = Mathf.Clamp(shakeIntensity,0f,5f); 
+        mainCamera.FrequencyGain = shakeIntensity;
+        mainCamera.AmplitudeGain = shakeIntensity;
+        Debug.Log("SHAKING THE CAMERA");
+    }
+
     private void OnDrawGizmos()
     {
         Gizmos.color = Color.red;

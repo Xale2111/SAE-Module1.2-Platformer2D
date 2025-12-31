@@ -890,6 +890,8 @@ MonoBehaviour:
   camTarget: {fileID: 619014995}
   camOffsetX: 2.5
   camOffsetSpeed: 5
+  mainCamera: {fileID: 530665713}
+  shakeDuration: 0.1
   spriteContainer: {fileID: 778562202}
   weightScaleMultiplier: 0.05
   OnAddScore:
@@ -1242,6 +1244,7 @@ GameObject:
   - component: {fileID: 530665710}
   - component: {fileID: 530665709}
   - component: {fileID: 530665712}
+  - component: {fileID: 530665713}
   m_Layer: 0
   m_Name: CinemachineCamera
   m_TagString: Untagged
@@ -1346,6 +1349,23 @@ MonoBehaviour:
     MaxWindowSize: 0
     Padding: 0
   m_LegacyMaxWindowSize: -2
+--- !u!114 &530665713
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 530665708}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 68bb026fafb42b14791938953eaace77, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  NoiseProfile: {fileID: 11400000, guid: b241f91b9ccf8ff489abf204b30d3112, type: 2}
+  PivotOffset: {x: 0, y: 0, z: 0}
+  AmplitudeGain: 0
+  FrequencyGain: 0
+  m_NoiseOffsets: {x: 305.87408, y: 541.59973, z: 618.73315}
 --- !u!1001 &539466497
 PrefabInstance:
   m_ObjectHideFlags: 0
