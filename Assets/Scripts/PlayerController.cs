@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using Unity.Cinemachine;
 using Unity.VisualScripting;
 using UnityEngine;
@@ -71,8 +72,10 @@ public class PlayerController : MonoBehaviour
         
     [Header("Sound")] [Space(10)] 
     [SerializeField] private float walkSoundRate = 0.4f;
-    [Space(5)][SerializeField] private float runSoundRate = 0.3f;
-    [Space(7.5f)][SerializeField] private UnityEvent OnWalkPlaySound;
+    [SerializeField] private float runSoundRate = 0.3f;
+    [SerializeField] private List<AudioClip> footStepsSounds = new List<AudioClip>();
+    [SerializeField] private AudioSource footStepsAudioSource;
+    
 
     
     //---- PRIVATE VARIABLES ----
@@ -137,6 +140,7 @@ public class PlayerController : MonoBehaviour
         spawnPoint = GameObject.FindGameObjectWithTag("Respawn");
         transform.position = spawnPoint.transform.position;
         _rb.gravityScale = baseGravity;
+        canMove = true;
     }
 
     void Update()
@@ -438,7 +442,7 @@ public class PlayerController : MonoBehaviour
         
         if (walkSoundTimer <= 0 && xMoveInput != 0 && isGrounded)
         {
-            OnWalkPlaySound.Invoke();
+            footStepsAudioSource.PlayOneShot(footStepsSounds[Random.Range(0,footStepsSounds.Count)]);
             walkSoundTimer = soundRate;
         }
         
@@ -450,7 +454,6 @@ public class PlayerController : MonoBehaviour
         if(!isCameraShaking)
         {
             isCameraShaking = true;
-            Debug.Log("SHAKE CAMERA");
             StartCoroutine(StopCameraShake_CO());
         }
     }
@@ -485,7 +488,6 @@ public class PlayerController : MonoBehaviour
         shakeIntensity = Mathf.Clamp(shakeIntensity,0f,5f); 
         mainCamera.FrequencyGain = shakeIntensity;
         mainCamera.AmplitudeGain = shakeIntensity;
-        Debug.Log("SHAKING THE CAMERA");
     }
 
     private void OnDrawGizmos()
